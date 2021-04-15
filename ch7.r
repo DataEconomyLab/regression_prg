@@ -81,3 +81,31 @@ levels(n3.tobgp)
 
 logit_tob3 <- glm(y~n3.tobgp, family=binomial(link=logit))
 summary(logit_tob3)
+
+anova(logit_tob3, logit_tob, test="Chisq")
+
+logit_main <- glm(y~n.alcgp+n3.tobgp+n4.agegp, family=binomial(link=logit))
+summary(logit_main)
+
+exp(coef(logit_main))
+
+exp(confint(logit_main, parm="n.alcgp40-79", level=0.95))
+
+## 로지스틱회귀모형의 적합도 시각적으로 검토하기
+attach(glider)
+logit_m2 <- glm(occurr~p_size_km, family=binomial(link=logit))
+
+# 원 자료 jitter 형식으로 그리기
+plot(p_size_km, occurr, type="n", xlab="구획의 크기(x)", ylab="hat pi(x) occurr")
+rug(jitter(p_size_km[occurr==0]))
+rug(jitter(p_size_km[occurr==1]), side=3)
+
+#확률추정곡선 그리기
+x <- seq(23, 226, 1)
+hat.pi <- predict(logit_m2, list(p_size_km=x), type="response")
+lines(x, hat.pi, col="red", lwd=1.5)
+
+# 설명변수 구간나누기 및 각 구간에서 표본비율 구하기
+c1.intr <- cut(p_size_km, 5)
+table(c1.intr)
+
